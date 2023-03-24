@@ -20,7 +20,7 @@ doCellSegmentation <- function(raster_img,
                                folder_path,
                                reduce_resolution = 4,
                                overlapping_pixels = 50,
-                               python_path = NULL){
+                               python_path = NULL) {
 
   # python path (requires use of gobject)
   # if(is.null(python_path)) {

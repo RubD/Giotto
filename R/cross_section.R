@@ -436,7 +436,7 @@ createCrossSection <- function(gobject,
 ){
 
   # read spatial locations
-  spatial_locations = select_spatial_locations(gobject,
+  spatial_locations = get_spatial_locations(gobject,
                                                spat_loc_name = spat_loc_name)
   spatial_locations = spatial_locations[, grepl("sdim", colnames(spatial_locations)),
                                         with = F]
