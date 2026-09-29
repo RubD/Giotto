@@ -87,6 +87,10 @@ under that version.
   counter, so per-node results can be joined back to the tree.
 
 ## new
+- `importVisiumHD()`, `createGiottoVisiumHDObjectBin()` and
+  `createGiottoVisiumHDObjectCell()` gain `backend =`, routing to
+  `GiottoDisk::importVisiumHDDisk()` as the Stereo-seq readers do. Without it,
+  nothing changes.
 - `writeClusterTreeQuery()` builds the annotation query for a cluster tree: the
   tree as an indented outline, the markers separating each branch, and the
   per-cluster markers with a specificity flag. `context` is a free-form named
