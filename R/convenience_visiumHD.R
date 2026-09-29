@@ -187,8 +187,12 @@ setMethod("print", signature("VisiumHDReader"), function(x, ...) show(x))
 #'   spatially filter the data by.
 #' @param filter_coverage_cutoff numeric between 0 and 1. Minimal fraction of
 #'   pixel coverage by `filter` in order to be selected.
+#' @param backend (optional) a `gsource`-inheriting project backend (typically
+#' produced by `GiottoDisk::sourceCreate()`). When provided, creates the
+#' `giotto` object as a managed on-disk project.
 #' @details Loading functions are generated after the `visiumhd_dir` is added.
-#' @returns `VisiumHDReader` object
+#' @returns `VisiumHDReader` object, or `VisiumHDDiskReader` when `backend` is
+#' set
 #' @examples
 #' \dontrun{
 #' # Create a `VisiumHDReader` object
@@ -237,7 +241,32 @@ importVisiumHD <- function(
     pxl_subset_row = NULL,
     pxl_subset_col = NULL,
     filter = NULL,
-    filter_coverage_cutoff = 0.5) {
+    filter_coverage_cutoff = 0.5,
+    backend = NULL) {
+    if (!is.null(backend)) {
+        package_check(
+            "GiottoDisk",
+            repository = "github:giotto-suite/GiottoDisk"
+        )
+        return(GiottoDisk::importVisiumHDDisk(
+            visiumhd_dir = visiumhd_dir,
+            backend = backend,
+            bin = bin,
+            micron = micron,
+            outdir = outdir,
+            expression_source = expression_source,
+            feature_id_type = feature_id_type,
+            tissue_only = tissue_only,
+            barcodes = barcodes,
+            array_subset_row = array_subset_row,
+            array_subset_col = array_subset_col,
+            pxl_subset_row = pxl_subset_row,
+            pxl_subset_col = pxl_subset_col,
+            filter = filter,
+            filter_coverage_cutoff = filter_coverage_cutoff
+        ))
+    }
+
     # get params
     a <- list(Class = "VisiumHDReader")
 
@@ -2526,6 +2555,9 @@ createGiottoVisiumHDObject <- function(visiumhd_dir,
 #' @param untar_params list. Additional named params to pass to [untar()].
 #' @param instructions giotto instructions to apply.
 #' @param verbose verbosity
+#' @param backend (optional) a `gsource`-inheriting project backend (typically
+#' produced by `GiottoDisk::sourceCreate()`). When provided, the `giotto`
+#' object is created as a managed on-disk project; see [importVisiumHD()].
 #' @returns giotto object
 #' @examples
 #' if (FALSE) {
@@ -2568,7 +2600,8 @@ createGiottoVisiumHDObjectBin <- function(binned_outputs_dir,
     force_untar = FALSE,
     untar_params = list(),
     instructions = NULL,
-    verbose = NULL) {
+    verbose = NULL,
+    backend = NULL) {
 
     reader <- importVisiumHD(
         visiumhd_dir = binned_outputs_dir,
@@ -2584,7 +2617,8 @@ createGiottoVisiumHDObjectBin <- function(binned_outputs_dir,
         pxl_subset_row = pxl_subset_row,
         pxl_subset_col = pxl_subset_col,
         filter = filter,
-        filter_coverage_cutoff = filter_coverage_cutoff
+        filter_coverage_cutoff = filter_coverage_cutoff,
+        backend = backend
     )
 
     read_args <- list(
@@ -2669,6 +2703,9 @@ createGiottoVisiumHDObjectBin <- function(binned_outputs_dir,
 #' files.
 #' @param instructions giotto instructions to apply.
 #' @param verbose verbosity
+#' @param backend (optional) a `gsource`-inheriting project backend (typically
+#' produced by `GiottoDisk::sourceCreate()`). When provided, the `giotto`
+#' object is created as a managed on-disk project; see [importVisiumHD()].
 #' @returns giotto object
 #' @examples
 #' if (FALSE) {
@@ -2705,7 +2742,8 @@ createGiottoVisiumHDObjectCell <- function(segmented_outputs_dir,
     image_path = NULL,
     geojson_path = NULL,
     instructions = NULL,
-    verbose = NULL) {
+    verbose = NULL,
+    backend = NULL) {
 
     # resolve binned_outputs_dir for transcript loading
     if (load_transcripts) {
@@ -2733,7 +2771,8 @@ createGiottoVisiumHDObjectCell <- function(segmented_outputs_dir,
         micron = micron,
         expression_source = expression_source,
         feature_id_type = feature_id_type,
-        barcodes = barcodes
+        barcodes = barcodes,
+        backend = backend
     )
 
     read_args <- list(
@@ -2769,7 +2808,8 @@ createGiottoVisiumHDObjectCell <- function(segmented_outputs_dir,
             bin = 2L,
             micron = micron,
             expression_source = expression_source,
-            feature_id_type = feature_id_type
+            feature_id_type = feature_id_type,
+            backend = backend
         )
         tx_list <- bin_reader$load_transcripts()
         g <- setGiotto(g, tx_list, verbose = verbose)
